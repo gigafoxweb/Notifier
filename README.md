@@ -13,9 +13,15 @@ composer require gigafoxweb/notifier
 
 # Usage example
 
-```php
+If you installed package by composer you just need to :
 
-<?php
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+```
+
+else :
+
+```php
 require_once '../INotifier.php';
 require_once '../Notifier.php';
 require_once '../SessionNotifier.php';
@@ -23,7 +29,11 @@ require_once '../MemoryNotifier.php';
 require_once '../NotifierException.php';
 require_once '../SessionException.php';
 require_once '../NotificationFilter.php';
+```
 
+simple aplication example :
+
+```php
 session_start();
 
 try {
