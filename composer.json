@@ -16,7 +16,7 @@
     },
     "autoload": {
       "psr-4": {
-        "gigafoxweb\\": "src/"
+        "GigaFoxWeb\\": "src/"
       }
     }
 }
