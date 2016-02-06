@@ -5,6 +5,12 @@ Thank you for your interest in this product. We hope you will enjoy it. [gigafox
 The main task of this project is to help you manage system notification in your application.
 The normal API i will write in future. Before that you can see a simple example.
 
+#### You can install it by composer
+
+```
+composer require gigafoxweb/notifier
+```
+
 # Usage example
 
 ```php
@@ -85,3 +91,4 @@ try {
 </form>
 </body>
 </html>
+```
