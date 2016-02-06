@@ -20,15 +20,15 @@ require_once __DIR__ . '/vendor/autoload.php';
 ```
 
 else :
-
+gi
 ```php
-require_once '../INotifier.php';
-require_once '../Notifier.php';
-require_once '../SessionNotifier.php';
-require_once '../MemoryNotifier.php';
-require_once '../NotifierException.php';
-require_once '../SessionException.php';
-require_once '../NotificationFilter.php';
+require_once __DIR__ . '/src/Notifier/INotifier.php';
+require_once __DIR__ . '/src/Notifier/Notifier.php';
+require_once __DIR__ . '/src/Notifier/SessionNotifier.php';
+require_once __DIR__ . '/src/Notifier/MemoryNotifier.php';
+require_once __DIR__ . '/src/Notifier/NotifierException.php';
+require_once __DIR__ . '/src/Notifier/SessionException.php';
+require_once __DIR__ . '/src/Notifier/NotificationFilter.php';
 ```
 
 simple aplication example :
