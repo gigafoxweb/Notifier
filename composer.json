@@ -1,0 +1,13 @@
+{
+    "name": "gigafoxweb/notifier",
+    "description": "Simple notifier manager",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gigafoxweb",
+            "email": "gigafoxweb@gmail.com",
+            "homepage": "http://gigafoxweb.com"
+        }
+    ],
+    "require": {}
+}
