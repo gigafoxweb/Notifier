@@ -31,7 +31,7 @@ require_once __DIR__ . '/src/Notifier/SessionException.php';
 require_once __DIR__ . '/src/Notifier/NotificationFilter.php';
 ```
 
-simple aplication example :
+simple application example :
 
 ```php
 session_start();
