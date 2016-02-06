@@ -20,7 +20,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 ```
 
 else :
-gi
+
 ```php
 require_once __DIR__ . '/src/Notifier/INotifier.php';
 require_once __DIR__ . '/src/Notifier/Notifier.php';
