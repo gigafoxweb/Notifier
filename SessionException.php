@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link http://www.gigafoxweb.com/
+ * @copyright Copyright (c) http://www.gigafoxweb.com/
+ */
+
 namespace GigaFoxWeb;
 
 /**
