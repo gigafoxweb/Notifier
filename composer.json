@@ -1,14 +1,22 @@
 {
     "name": "gigafoxweb/notifier",
     "description": "Simple notifier manager",
+    "keywords": ["notifications", "notify", "notice", "notification"],
     "version": "1.0.0",
     "license": "MIT",
     "authors": [
-        {
-            "name": "gigafoxweb",
-            "email": "gigafoxweb@gmail.com",
-            "homepage": "http://gigafoxweb.com"
-        }
+      {
+        "name": "gigafoxweb",
+        "email": "gigafoxweb@gmail.com",
+        "homepage": "http://gigafoxweb.com"
+      }
     ],
-    "require": {}
+    "require": {
+      "php": ">=5.4.0"
+    },
+    "autoload": {
+      "psr-4": {
+        "gigafoxweb\\": "src/"
+      }
+    }
 }

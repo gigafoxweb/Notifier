@@ -4,56 +4,41 @@
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
 
-namespace GigaFoxWeb;
+namespace GigaFoxWeb\Notifier;
 
 
 /**
- * Class MemoryNotifier
+ * Class SessionNotifier
  * @package GigaFoxWeb
  */
-class MemoryNotifier extends Notifier {
+class SessionNotifier extends Notifier {
 
+    private static $prefix = 'GFW_notification_';
 
-    /**
-     * @var array
-     */
-    private static $notifications = [];
-
-    /**
-     * @param $key
-     * @param null $value
-     * @param array $params
-     * @throws NotifierException
-     */
     public static function set($key, $value = null, array $params = [])
     {
+        self::checkError();
         if (empty($value)) {
-            unset(self::$notifications[$key]);
+            unset($_SESSION[self::$prefix][$key]);
         } else {
             if (!is_string($value)) {
                 throw new NotifierException('The notification must be a string');
             }
-            self::$notifications[$key] = ['value' => $value, 'params' => $params];
+            $_SESSION[self::$prefix][$key] = ['value' => $value, 'params' => $params];
         }
     }
 
-    /**
-     * @param $key
-     * @return null
-     */
     public static function get($key)
     {
-        return isset(self::$notifications[$key]) ? self::$notifications[$key] : null;
+        self::checkError();
+        return isset($_SESSION[self::$prefix][$key]) ? $_SESSION[self::$prefix][$key] : null;
     }
 
 
-    /**
-     * @param string $type
-     * @return array|string
-     */
     public static function getAll($type = 'array')
     {
-        $n = self::$notifications;
+        self::checkError();
+        $n = isset($_SESSION[self::$prefix]) ? $_SESSION[self::$prefix] : [];
         switch ($type) {
             case 'array' :
                 break;
@@ -63,5 +48,14 @@ class MemoryNotifier extends Notifier {
         }
         return $n;
     }
+
+
+    private static function checkError()
+    {
+        if (!session_id()) {
+            throw new SessionNotifierException('Session did not start');
+        }
+    }
+
 
 }

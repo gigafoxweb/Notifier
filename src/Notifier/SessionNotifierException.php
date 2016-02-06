@@ -4,20 +4,20 @@
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
 
-namespace GigaFoxWeb;
+namespace GigaFoxWeb\Notifier;
 
 /**
  * Class SessionException
  * @package GigaFoxWeb
  */
-class SessionException extends NotifierException {
+class SessionNotifierException extends NotifierException {
 
     /**
      * @param string $message
      * @param int $code
-     * @param Exception $previous
+     * @param \Exception $previous
      */
-    public function __construct($message, $code = 0, Exception $previous = null) {
+    public function __construct($message, $code = 0, \Exception $previous = null) {
         $message = $message . '  | SessionNotifier';
         parent::__construct($message, $code, $previous);
     }

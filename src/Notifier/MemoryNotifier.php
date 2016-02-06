@@ -4,41 +4,56 @@
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
 
-namespace GigaFoxWeb;
+namespace GigaFoxWeb\Notifier;
 
 
 /**
- * Class SessionNotifier
+ * Class MemoryNotifier
  * @package GigaFoxWeb
  */
-class SessionNotifier extends Notifier {
+class MemoryNotifier extends Notifier {
 
-    private static $prefix = 'GFW_notification_';
 
+    /**
+     * @var array
+     */
+    private static $notifications = [];
+
+    /**
+     * @param $key
+     * @param null $value
+     * @param array $params
+     * @throws NotifierException
+     */
     public static function set($key, $value = null, array $params = [])
     {
-        self::checkError();
         if (empty($value)) {
-            unset($_SESSION[self::$prefix][$key]);
+            unset(self::$notifications[$key]);
         } else {
             if (!is_string($value)) {
                 throw new NotifierException('The notification must be a string');
             }
-            $_SESSION[self::$prefix][$key] = ['value' => $value, 'params' => $params];
+            self::$notifications[$key] = ['value' => $value, 'params' => $params];
         }
     }
 
+    /**
+     * @param $key
+     * @return null
+     */
     public static function get($key)
     {
-        self::checkError();
-        return isset($_SESSION[self::$prefix][$key]) ? $_SESSION[self::$prefix][$key] : null;
+        return isset(self::$notifications[$key]) ? self::$notifications[$key] : null;
     }
 
 
+    /**
+     * @param string $type
+     * @return array|string
+     */
     public static function getAll($type = 'array')
     {
-        self::checkError();
-        $n = isset($_SESSION[self::$prefix]) ? $_SESSION[self::$prefix] : [];
+        $n = self::$notifications;
         switch ($type) {
             case 'array' :
                 break;
@@ -48,14 +63,5 @@ class SessionNotifier extends Notifier {
         }
         return $n;
     }
-
-
-    private static function checkError()
-    {
-        if (!session_id()) {
-            throw new SessionException('Session did not start');
-        }
-    }
-
 
 }

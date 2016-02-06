@@ -4,7 +4,7 @@
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
 
-namespace GigaFoxWeb;
+namespace GigaFoxWeb\Notifier;
 
 
 /**
