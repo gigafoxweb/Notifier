@@ -38,20 +38,20 @@ session_start();
 
 try {
 
-    \GigaFoxWeb\MemoryNotifier::set('interesting message', 'you can do anything you want in this notifier', ['status' => 'inform']);
+    \GigaFoxWeb\Notifier\MemoryNotifier::set('interesting message', 'you can do anything you want in this notifier', ['status' => 'inform']);
 
     if (isset($_POST['answ'])) {
         $answ = trim(htmlspecialchars($_POST['answ']));
         if (in_array($answ, ['y', 'yes'])) {
-            \GigaFoxWeb\SessionNotifier::set('result' , '=)', ['status' => 'success']);
+            \GigaFoxWeb\Notifier\SessionNotifier::set('result' , '=)', ['status' => 'success']);
         } elseif (in_array($answ, ['n', 'no'])) {
-            \GigaFoxWeb\SessionNotifier::set('result' , '=(', ['status' => 'error']);
+            \GigaFoxWeb\Notifier\SessionNotifier::set('result' , '=(', ['status' => 'error']);
         } else {
-            \GigaFoxWeb\SessionNotifier::set('result' , 'wrong message', ['status' => 'error']);
+            \GigaFoxWeb\Notifier\SessionNotifier::set('result' , 'wrong message', ['status' => 'error']);
         }
     }
 
-    $filtrator = new \GigaFoxWeb\NotificationFiltrator();
+    $filtrator = new \GigaFoxWeb\Notifier\NotificationFiltrator();
     $filtrator->add(function($n , $p) {
         // $p -  notification parameters (array)
         return "<div class='success notification'>{$n}</div>";
@@ -62,8 +62,8 @@ try {
         return "<div class='inform notification'>{$n}</div>";
     }, ['status' => 'inform']);
 
-    \GigaFoxWeb\SessionNotifier::showAll($filtrator);
-    \GigaFoxWeb\MemoryNotifier::showAll($filtrator);
+    \GigaFoxWeb\Notifier\SessionNotifier::showAll($filtrator);
+    \GigaFoxWeb\Notifier\MemoryNotifier::showAll($filtrator);
 
 } catch (Exception $e) {
     echo $e->getMessage();
