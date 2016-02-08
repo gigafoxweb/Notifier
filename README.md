@@ -28,7 +28,7 @@ require_once __DIR__ . '/src/Notifier/SessionNotifier.php';
 require_once __DIR__ . '/src/Notifier/MemoryNotifier.php';
 require_once __DIR__ . '/src/Notifier/NotifierException.php';
 require_once __DIR__ . '/src/Notifier/SessionException.php';
-require_once __DIR__ . '/src/Notifier/NotificationFilter.php';
+require_once __DIR__ . '/src/Notifier/NotificationFiltrator.php';
 ```
 
 simple application example :
