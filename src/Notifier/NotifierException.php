@@ -31,11 +31,4 @@ class NotifierException extends Exception {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
     }
 
-    /**
-     *
-     */
-    public function customFunction() {
-        echo "A custom function for this type of exception\n";
-    }
-
 }

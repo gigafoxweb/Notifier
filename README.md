@@ -51,7 +51,7 @@ try {
         }
     }
 
-    $filtrator = new \GigaFoxWeb\NotificationFilter();
+    $filtrator = new \GigaFoxWeb\NotificationFiltrator();
     $filtrator->add(function($n , $p) {
         // $p -  notification parameters (array)
         return "<div class='success notification'>{$n}</div>";
