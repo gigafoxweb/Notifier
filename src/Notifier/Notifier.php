@@ -42,7 +42,7 @@ abstract class Notifier implements INotifier
 
     /**
      * @param null $filtrator
-     * @param array $config options by which you can find the notifications (keyPrefix, 'paramsKeys', 'keys')
+     * @param array $config options by which you can find the notifications (prefix, 'paramsKeys', 'keys')
      *
      */
     public static function showAll($filtrator = null, array $config = [])
