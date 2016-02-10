@@ -50,7 +50,7 @@ abstract class Notifier implements INotifier
         $notifications = static::getAll();
         $keys = [];
         if (!empty($config)) {
-            if (!isset($config['keys']) && !isset($config['prefix']) && !isset($config['params'])) {
+            if (!isset($config['keys']) && !isset($config['prefix']) && !isset($config['paramsKeys'])) {
                 throw new NotifierException('wrong config for showAll method!');
             }
             if (isset($config['keys'])) {
