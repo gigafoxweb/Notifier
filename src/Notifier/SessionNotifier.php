@@ -47,7 +47,7 @@ class SessionNotifier extends Notifier {
         self::checkError();
         $notification = null;
         if (isset($_SESSION[self::$prefix][$key])) {
-            $notification = self::createNotificationObject($key, $_SESSION[self::$prefix[$key]]);
+            $notification = self::createNotificationObject($key, $_SESSION[self::$prefix][$key]);
         }
         return $notification;
     }
