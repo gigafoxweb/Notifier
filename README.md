@@ -98,10 +98,7 @@ try {
             ['show', true]
         ],
         'function' => function(\GigaFoxWeb\Notifier\Notification $notification) {
-            if (isset($notification->params['fun']) && $notification->params['fun']) {
-                return true;
-            }
-            return false;
+            return (isset($notification->params['fun']) && $notification->params['fun']);
         }
     ]);
 
@@ -136,7 +133,8 @@ try {
 <body>
 <p>Is it true? y/n</p>
 <form method="post" name="example" action="">
-    <input type="text" name="answ" value=""/>
+    <label for="answ">answer: </label>
+    <input id="answ" type="text" name="answ" value="" />
     <input type="submit"/>
 </form>
 </body>
