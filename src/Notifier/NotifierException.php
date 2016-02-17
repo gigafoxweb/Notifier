@@ -10,7 +10,7 @@ use Exception;
 
 /**
  * Class NotifierException
- * @package GigaFoxWeb
+ * @package GigaFoxWeb\Notifier
  */
 class NotifierException extends Exception {
 

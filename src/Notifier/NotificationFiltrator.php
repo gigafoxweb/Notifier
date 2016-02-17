@@ -11,6 +11,10 @@ namespace GigaFoxWeb\Notifier;
  * Class NotificationFilter
  * @package GigaFoxWeb
  */
+/**
+ * Class NotificationFiltrator
+ * @package GigaFoxWeb\Notifier
+ */
 class NotificationFiltrator {
 
     /**
@@ -25,44 +29,34 @@ class NotificationFiltrator {
      */
     public function add(callable $function, $for = null)
     {
-        //$for =  (string) param key, (array) param key with value, (null) for all notifications
-        $this->filters[] = ['for' => $for, 'function' => $function];
+        $this->filters[] = ['function' => $function, 'for' => $for];
         return $this;
     }
 
     /**
-     * @param array $notification
-     * @return string
+     * @param Notification $notification
      * @throws NotifierException
      */
-    public function filtrate(array $notification = [])
+    public function filtrate(Notification &$notification)
     {
-        $r = '';
-        if (!empty($notification)) {
-            $r = $notification['value'];
-            foreach ($this->filters as $filter) {
-                if (empty($filter['for'])) {
-                    $r = call_user_func($filter['function'], $r, $notification['params']);
-                } elseif (is_string($filter['for'])) {
-                    if (array_key_exists($filter['for'], $notification['params'])) {
-                        $r = call_user_func($filter['function'], $r, $notification['params']);
+        foreach ($this->filters as $filter) {
+            if (empty($filter['for'])) {
+                $notification = call_user_func($filter['function'], $notification);
+            } else {
+                if (isset($filter['for']['params'])) {
+                    if (Helper::checkByParams($filter['for']['params'], $notification->params)) {
+                        $notification = call_user_func($filter['function'], $notification);
                     }
-                } elseif (is_array($filter['for'])) {
-                    $f = false;
-                    foreach ($filter['for'] as $k => $v) {
-                        $f = (array_key_exists($k, $notification['params']) && $notification['params'][$k] === $v);
-                        if (!$f) break;
-                    }
-                    if ($f) {
-                        $r = call_user_func($filter['function'], $r, $notification['params']);
-                    }
-                    if (!is_string($r)) {
-                        throw new NotifierException('Callback filter function must return string value');
+                } elseif (isset($filter['for']['function'])) {
+                    if (Helper::checkByFunction($filter['for']['function'], $notification)) {
+                        $notification = call_user_func($filter['function'], $notification);
                     }
                 }
             }
+            if (!$notification instanceof Notification) {
+                throw new NotifierException('Callback filter function must return Notification object');
+            }
         }
-        return $r;
     }
 
 }

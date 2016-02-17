@@ -6,13 +6,11 @@
 
 namespace GigaFoxWeb\Notifier;
 
-
 /**
  * Class MemoryNotifier
- * @package GigaFoxWeb
+ * @package GigaFoxWeb\Notifier
  */
 class MemoryNotifier extends Notifier {
-
 
     /**
      * @var array
@@ -33,7 +31,11 @@ class MemoryNotifier extends Notifier {
             if (!is_string($value)) {
                 throw new NotifierException('The notification must be a string');
             }
-            self::$notifications[$key] = ['value' => $value, 'params' => $params];
+            $notification = new Notification();
+            $notification->id = $key;
+            $notification->value = $value;
+            $notification->params = $params;
+            self::$notifications[$key] = $notification;
         }
     }
 
@@ -45,7 +47,6 @@ class MemoryNotifier extends Notifier {
     {
         return isset(self::$notifications[$key]) ? self::$notifications[$key] : null;
     }
-
 
     /**
      * @param string $type

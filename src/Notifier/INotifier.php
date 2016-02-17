@@ -6,50 +6,46 @@
 
 namespace GigaFoxWeb\Notifier;
 
-
 /**
  * Interface INotifier
- * @package GigaFoxWeb
+ * @package GigaFoxWeb\Notifier
  */
 interface INotifier {
 
-
     /**
-     * @param $key
-     * @param null $value
+     * @param string $key
+     * @param string $value
      * @param array $params
-     * @return mixed
      */
     public static function set($key, $value = null, array $params = []);
 
-
     /**
-     * @param $key
-     * @return mixed
+     * @param string $key
+     * @return Notification
      */
     public static function get($key);
 
-
     /**
-     * @param $key
-     * @param null $filter
-     * @return mixed
+     * @param string|Notification $notification
+     * @param null|NotificationFiltrator $filtrator
      */
-    public static function show($key, $filter = null);
-
+    public static function show($key, $filtrator = null);
 
     /**
      * @param string $type
-     * @return mixed
+     * @return array|string
      */
     public static function getAll($type = 'array');
 
+    /**
+     * @param null $filtrator
+     * @param array $search
+     */
+    public static function showAll($filtrator = null, array $search = []);
 
     /**
-     * @param null $filter
-     * @param array $keys
      * @return mixed
      */
-    public static function showAll($filter = null, array $keys = []);
+    public static function getClassName();
 
 }
