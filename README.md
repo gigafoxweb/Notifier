@@ -43,7 +43,7 @@ You can set notifications to notifier by array || object || callable function ||
 ```php
 MemoryNotifier::setNotification('notification 1 key', new Notification('message'));
 MemoryNotifier::setNotification('notification 2 key', 'message');
-MemoryNotifier::setNotification('notification 3 key', ['you can do anything you want in this notifier', [
+MemoryNotifier::setNotification('notification 3 key', ['message', [
 	'show' => true
 ]]);
 MemoryNotifier::setNotification('notification 4 key', function() {
