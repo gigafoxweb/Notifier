@@ -6,6 +6,7 @@
 
 namespace GigaFoxWeb\Notifier;
 
+
 use Exception;
 
 /**

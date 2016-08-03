@@ -6,6 +6,7 @@
 
 namespace GigaFoxWeb\Notifier;
 
+
 /**
  * Class SessionNotifier
  * @package GigaFoxWeb\Notifier
@@ -17,53 +18,51 @@ class SessionNotifier extends Notifier {
      */
     private static $prefix = 'GFW_notification_';
 
-    /**
-     * @param $key
-     * @param null $value
-     * @param array $params
-     * @throws NotifierException
-     * @throws SessionNotifierException
-     */
-    public static function set($key, $value = null, array $params = [])
-    {
-        self::checkError();
-        if (empty($value)) {
-            unset($_SESSION[self::$prefix][$key]);
-        } else {
-            if (!is_string($value)) {
-                throw new NotifierException('The notification message must be a string');
-            }
-            $_SESSION[self::$prefix][$key] = ['value' => $value, 'params' => $params];
-        }
+	/**
+	 * @param string $key
+	 * @param array|callable|Notification|string $notificationConfig
+	 */
+	public static function setNotification($key, $notificationConfig) {
+        static::checkError();
+		$_SESSION[static::$prefix][$key] = $notificationConfig;
     }
 
-    /**
-     * @param $key
-     * @return Notification|null
-     * @throws SessionNotifierException
-     */
-    public static function get($key)
-    {
-        self::checkError();
-        $notification = null;
-        if (isset($_SESSION[self::$prefix][$key])) {
-            $notification = self::createNotificationObject($key, $_SESSION[self::$prefix][$key]);
+	/**
+	 * @param string $key
+	 */
+	public static function removeNotification($key) {
+		if (isset($_SESSION[static::$prefix][$key])) {
+			unset ($_SESSION[static::$prefix][$key]);
+		}
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return Notification|null
+	 */
+	public static function getNotification($key) {
+        static::checkError();
+        if (isset($_SESSION[static::$prefix][$key])) {
+        	if (!$_SESSION[static::$prefix][$key] instanceof Notification) {
+				$_SESSION[static::$prefix][$key] = self::createNotification($_SESSION[static::$prefix][$key]);
+			}
+            return $_SESSION[static::$prefix][$key];
         }
-        return $notification;
+        return null;
     }
 
-    /**
-     * @param string $type
-     * @return array|string
-     * @throws SessionNotifierException
-     */
-    public static function getAll($type = 'array')
-    {
-        self::checkError();
+	/**
+	 * @param string $type
+	 *
+	 * @return mixed
+	 */
+	public static function getAllNotifications($type = 'array') {
+        static::checkError();
         $notifications = [];
-        if (isset($_SESSION[self::$prefix])) {
-            foreach ($_SESSION[self::$prefix] as $key => $notification) {
-                $notifications[$key] = self::createNotificationObject($key, $notification);
+        if (isset($_SESSION[static::$prefix])) {
+            foreach ($_SESSION[static::$prefix] as $key => $notification) {
+                $notifications[$key] = static::getNotification($key);
             }
         }
         switch ($type) {
@@ -77,27 +76,16 @@ class SessionNotifier extends Notifier {
     }
 
     /**
-     * @param $key
-     * @param array $notificationArray
-     * @return Notification
-     */
-    private static function createNotificationObject($key, array $notificationArray) {
-        $notification = new Notification();
-        $notification->id = $key;
-        $notification->value = $notificationArray['value'];
-        $notification->params = $notificationArray['params'];
-        return $notification;
-    }
-
-    /**
      * @throws SessionNotifierException
      */
-    private static function checkError()
-    {
+    private static function checkError() {
         if (!session_id()) {
             throw new SessionNotifierException('Session did not start');
         }
     }
 
+    public function setPrefix($prefix) {
+    	static::$prefix = $prefix;
+	}
 
 }

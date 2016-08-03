@@ -1,5 +1,11 @@
 <?php
+/**
+ * @link http://www.gigafoxweb.com/
+ * @copyright Copyright (c) http://www.gigafoxweb.com/
+ */
+
 namespace GigaFoxWeb\Notifier;
+
 
 /**
  * Class Helper
@@ -8,12 +14,16 @@ namespace GigaFoxWeb\Notifier;
 class Helper {
 
     /**
-     * @param $prefix
-     * @param array $notifications
-     * @return array
+     * @param string $prefix
+     * @param Notification[] $notifications
+	 * @throws NotifierException
+	 * @return Notification[]
      */
-    public static function searchByKeyPrefix($prefix, array $notifications) {
+    public static function searchByKeyPrefix($prefix, array $notifications = []) {
         foreach ($notifications as $key => $notification) {
+			if (!$notification instanceof Notification) {
+				throw new NotifierException("Notification {$key} does not instanceof Notification");
+			}
             if (is_string($prefix)) {
                 if (strpos($key, $prefix) !== 0) {
                     unset($notifications[$key]);
@@ -39,16 +49,16 @@ class Helper {
 
     /**
      * @param array $params
-     * @param array $notifications
-     * @return array
-     * @throws NotifierException
+     * @param Notification[] $notifications
+	 * * @throws NotifierException
+     * @return Notification[]
      */
-    public static function searchByParams(array $params, array $notifications) {
+    public static function searchByParams(array $params, array $notifications = []) {
         foreach ($notifications as $key => $notification) {
-            if (!$notification instanceof Notification) {
-                throw new NotifierException("Nottification {$key} does not instanceof Notification");
-            }
-            if (!self::checkByParams($params, $notification->params)) {
+			if (!$notification instanceof Notification) {
+				throw new NotifierException("Notification {$key} does not instanceof Notification");
+			}
+            if (!self::checkByParams($params, $notification)) {
                 unset($notifications[$key]);
             }
         }
@@ -58,14 +68,14 @@ class Helper {
 
     /**
      * @param callable $function
-     * @param array $notifications
-     * @return array
-     * @throws NotifierException
+     * @param Notification[] $notifications
+	 * * @throws NotifierException
+     * @return Notification[]
      */
-    public static function searchByFunction(callable $function, array $notifications) {
+    public static function searchByFunction(callable $function, array $notifications = []) {
         foreach ($notifications as $key => $notification) {
             if (!$notification instanceof Notification) {
-                throw new NotifierException("Nottification {$key} does not instanceof Notification");
+                throw new NotifierException("Notification {$key} does not instanceof Notification");
             }
             if (!self::checkByFunction($function, $notification)) {
                 unset($notifications[$key]);
@@ -77,25 +87,26 @@ class Helper {
     /**
      * @param callable $function
      * @param Notification $notification
-     * @return mixed
+     * @return bool
      */
     public static function checkByFunction(callable $function, Notification $notification) {
-        return $function($notification);
+        return call_user_func($function, $notification);
     }
 
     /**
      * @param array $searchParams
-     * @param array $params
+	 * @param Notification $notification
      * @return bool
      * @throws NotifierException
      */
-    public static function checkByParams(array $searchParams, array $params) {
+    public static function checkByParams(array $searchParams, Notification $notification) {
         //example search : [['param1' , 'value1'], 'param2', ['param3' , 'value3']]
         $result = true;
+		$params = $notification->getParams();
         foreach ($searchParams as $s) {
             if (is_array($s)) {
                 if (!isset($s[0]) || !isset($s[1])) {
-                    throw new NotifierException('array search key must contains key and value like [$key, $value]');
+                    throw new NotifierException('Array search item must contains key and value like: [$key, $value]');
                 }
                 if (!array_key_exists($s[0], $params) || $params[$s[0]] !== $s[1]) {
                     $result = false;

@@ -3,7 +3,9 @@
  * @link http://www.gigafoxweb.com/
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
+
 namespace GigaFoxWeb\Notifier;
+
 
 /**
  * Class Notifier
@@ -12,80 +14,134 @@ namespace GigaFoxWeb\Notifier;
 abstract class Notifier implements INotifier
 {
 
-    /**
+	/**
      * @return string
      */
     public static function getClassName() {
         return get_called_class();
     }
 
-    /**
-     * @param string|Notification $notification
-     * @param null|NotificationFiltrator $filtrator
-     * @throws NotifierException
-     */
-    public static function show($notification, $filtrator = null)
-    {
-        if (is_string($notification)) {
-            $notification = static::get($notification);
-        }
-        if ($notification instanceof Notification) {
-            if ($filtrator instanceof NotificationFiltrator) {
-                self::useFiltrator($filtrator, $notification);
-            }
-            echo $notification->value;
-            static::set($notification->id, null);
-        } else {
-            throw new NotifierException('Wrong first param for Notifier::show()');
-        }
+	/**
+	 * @param Notification|array|string|callable $notificationConfig
+	 * * @throws \Exception
+	 * @return Notification
+	 */
+	public static function createNotification($notificationConfig) {
+		$notification = $notificationConfig;
+		if (is_array($notificationConfig)) {
+			$message = array_key_exists(0, $notificationConfig) ? $notificationConfig[0] : '';
+			$params = array_key_exists(1, $notificationConfig) ? $notificationConfig[1] : [];
+			$notification = new Notification($message, $params);
+		} elseif (is_string($notificationConfig)) {
+			$notification = new Notification($notificationConfig);
+		} elseif (is_callable($notificationConfig)) {
+			$notification = call_user_func($notificationConfig);
+		}
+		if (!$notification instanceof Notification) {
+			throw new \Exception("Wrong notification config: " . static::class);
+		}
+		return $notification;
+	}
+
+	/**
+	 * @param string $key
+	 * @param NotificationFilter[]|Callable[]|array $filters
+	 */
+	public static function showNotification($key, array $filters = []) {
+    	$notification = static::getNotification($key);
+		if ($notification instanceof Notification) {
+			$notification = self::useFilters($notification, $filters);
+			echo $notification->getMessage();
+			static::removeNotification($key);
+		}
     }
 
-    /**
-     * @param null $filtrator
-     * @param array $search
-     * @throws NotifierException
-     */
-    public static function showAll($filtrator = null, array $search = [])
-    {
-        $notifications = self::searchBy($search);
-        foreach ($notifications as $notification) {
-            self::show($notification, $filtrator);
-        }
-    }
+	/**
+	 * @param $key
+	 * @param array $filters
+	 *
+	 * @return Notification|null
+	 */
+	public static function getFiltratedNotification($key, array $filters = []) {
+		$notification = static::getNotification($key);
+		if ($notification instanceof Notification) {
+			$notification = self::useFilters($notification, $filters);
+			static::removeNotification($key);
+		}
+		return $notification;
+	}
 
-    /**
+	/**
+	 * @param array $search
+	 * @param NotificationFilter[]|Callable[]|array $filters
+	 */
+	public static function showNotificationsBy(array $search = [], array $filters = []) {
+		$notifications = self::searchBy($search);
+		foreach ($notifications as $notificationKey => $notification) {
+			self::showNotification($notificationKey, $filters);
+		}
+	}
+
+	/**
+	 * @param array $search
+	 * @param NotificationFilter[]|Callable[]|array $filters
+	 *
+	 * @return array|Notification[]
+	 */
+	public static function getNotificationsBy(array $search = [], array $filters = []) {
+		$notifications = self::searchBy($search);
+		foreach ($notifications as $notificationKey => $notification) {
+			$notifications[$notificationKey] = self::getFiltratedNotification($notificationKey, $filters);
+		}
+		return $notifications;
+	}
+
+	/**
+	 * @param Notification $notification
+	 * @param NotificationFilter[]|Callable[]|array $filters
+	 *
+	 * @return Notification
+	 */
+	public static function useFilters(Notification $notification, array $filters = []) {
+		foreach ($filters as $filter) {
+			if (is_array($filter)) {
+				if (isset($filter['function'])) {
+					$search = (isset($filter['search'])) ? $filter['search'] : [];
+					$filter = new InlineNotificationFilter($filter['function'], $search);
+				}
+			} elseif (is_callable($filter)) {
+				$filter = new InlineNotificationFilter($filter);
+			}
+			if ($filter instanceof NotificationFilter) {
+				if ($filter->isFor($notification)) {
+					$filter->filtrate($notification);
+				}
+			}
+		}
+		return $notification;
+	}
+
+	/**
      * @param array $search
-     * @return array|mixed
+     * @return Notification[]|array
      */
-    public static function searchBy(array $search) {
-        $notifications = static::getAll();
-        $notifications = isset($search['keys']) ? self::searchNotificationsByKeys($search['keys']) : $notifications;
-        $notifications = isset($search['prefix']) ? self::searchNotificationsByKeyPrefix($search['prefix'], array_keys($notifications)) : $notifications;
-        $notifications = isset($search['params']) ? self::searchNotificationsByParams($search['params'], array_keys($notifications)) : $notifications;
-        $notifications = isset($search['function']) ? self::searchNotificationsByFunction($search['function'], array_keys($notifications)) : $notifications;
+    public static function searchBy(array $search = []) {
+		$notifications = array_key_exists('keys', $search) ? self::searchNotificationsByKeys($search['keys']) : static::getAllNotifications('array');
+        $notifications = array_key_exists('prefix', $search) ? Helper::searchByKeyPrefix($search['prefix'], $notifications) : $notifications;
+        $notifications = array_key_exists('params', $search) ? Helper::searchByParams($search['params'], $notifications) : $notifications;
+        $notifications = array_key_exists('function', $search) ? Helper::searchByFunction($search['function'], $notifications) : $notifications;
         return $notifications;
     }
 
     /**
-     * @param NotificationFiltrator $filtrator
-     * @param Notification $notification
-     * @throws NotifierException
-     */
-    public static function useFiltrator(NotificationFiltrator $filtrator, Notification $notification) {
-        /* @var $notification Notification */
-        $filtrator->filtrate($notification);
-        static::set($notification->id, $notification->value, $notification->params);
-    }
-
-    /**
      * @param array $keys
-     * @return array
+     * @return Notification[]|array
      */
-    public static function searchNotificationsByKeys(array $keys) {
+    public static function searchNotificationsByKeys(array $keys = []) {
         $notifications = [];
         foreach ($keys as $key) {
-            $notification = static::get($key);
-            if($notification instanceof Notification) {
+            $notification = static::getNotification($key);
+            if ($notification instanceof Notification) {
                 $notifications[$key] = $notification;
             }
         }
@@ -93,67 +149,63 @@ abstract class Notifier implements INotifier
     }
 
     /**
-     * @param $prefix
+     * @param string $prefix
      * @param array $keys
-     * @return array
+     * @return Notification[]|array
      */
     public static function searchNotificationsByKeyPrefix($prefix, array $keys = []) {
-        $notifications = empty($keys) ? static::getAll() : self::searchNotificationsByKeys($keys);
+        $notifications = empty($keys) ? static::getAllNotifications('array') : self::searchNotificationsByKeys($keys);
         return Helper::searchByKeyPrefix($prefix, $notifications);
     }
 
     /**
-     * @param $prefix
-     * @param array $notifications
+     * @param string $prefix
+     * @param Notification[]|array $notifications
      * @return array
      */
     public static function searchNotificationsKeysByKeyPrefix($prefix, array $notifications = []) {
-        $notifications = empty($notifications) ? static::getAll() : $notifications;
+        $notifications = empty($notifications) ? static::getAllNotifications('array') : $notifications;
         return array_keys(Helper::searchByKeyPrefix($prefix, $notifications));
     }
 
 
-    /**
+	/**
+	 * @param array $params
+	 * @param array $keys
+	 * @return Notification[]|array
+	 */
+	public static function searchNotificationsByParams(array $params = [], array $keys = []) {
+		$notifications = empty($keys) ? static::getAllNotifications('array') : self::searchNotificationsByKeys($keys);
+		return Helper::searchByParams($params, $notifications);
+	}
+
+	/**
      * @param array $params
-     * @param array $notifications
+     * @param Notification[] $notifications
      * @return array
-     * @throws NotifierException
      */
     public static function searchNotificationKeysByParams(array $params = [], array $notifications = []) {
-        $notifications = empty($notifications) ? static::getAll() : $notifications;
+        $notifications = empty($notifications) ? static::getAllNotifications('array') : $notifications;
         return array_keys(Helper::searchByParams($params, $notifications));
-    }
-
-    /**
-     * @param array $params
-     * @param array $keys
-     * @return array
-     * @throws NotifierException
-     */
-    public static function searchNotificationsByParams(array $params = [], array $keys = []) {
-        $notifications = empty($keys) ? static::getAll() : self::searchNotificationsByKeys($keys);
-        return Helper::searchByParams($params, $notifications);
     }
 
     /**
      * @param callable $function
      * @param array $keys
-     * @return array
-     * @throws NotifierException
+     * @return Notification[]|array
      */
-    public static function searchNotificationsByFunction(callable $function, array $keys) {
-        $notifications = empty($keys) ? static::getAll() : self::searchNotificationsByKeys($keys);
+    public static function searchNotificationsByFunction(callable $function, array $keys = []) {
+        $notifications = empty($keys) ? static::getAllNotifications('array') : self::searchNotificationsByKeys($keys);
         return Helper::searchByFunction($function, $notifications);
     }
 
     /**
      * @param callable $function
-     * @param array $notifications
+     * @param Notification[] $notifications
      * @return array
-     * @throws NotifierException
      */
-    public static function searchNotificationsKeysByFunction(callable $function, array $notifications) {
-        $notifications = empty($notifications) ? static::getAll() : $notifications;
+    public static function searchNotificationsKeysByFunction(callable $function, array $notifications = []) {
+        $notifications = empty($notifications) ? static::getAllNotifications('array') : $notifications;
         return array_keys(Helper::searchByFunction($function, $notifications));
     }
 

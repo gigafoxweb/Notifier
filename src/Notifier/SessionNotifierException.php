@@ -6,6 +6,7 @@
 
 namespace GigaFoxWeb\Notifier;
 
+
 /**
  * Class SessionNotifierException
  * @package GigaFoxWeb\Notifier

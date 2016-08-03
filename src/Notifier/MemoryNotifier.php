@@ -6,6 +6,7 @@
 
 namespace GigaFoxWeb\Notifier;
 
+
 /**
  * Class MemoryNotifier
  * @package GigaFoxWeb\Notifier
@@ -18,43 +19,46 @@ class MemoryNotifier extends Notifier {
     private static $notifications = [];
 
     /**
-     * @param $key
-     * @param null $value
-     * @param array $params
-     * @throws NotifierException
+     * @param string $key
+	 * @param Notification|array|string|callable $notificationConfig
      */
-    public static function set($key, $value = null, array $params = [])
-    {
-        if (empty($value)) {
-            unset(self::$notifications[$key]);
-        } else {
-            if (!is_string($value)) {
-                throw new NotifierException('The notification must be a string');
-            }
-            $notification = new Notification();
-            $notification->id = $key;
-            $notification->value = $value;
-            $notification->params = $params;
-            self::$notifications[$key] = $notification;
-        }
+    public static function setNotification($key, $notificationConfig) {
+    	static::$notifications[$key] = $notificationConfig;
     }
 
-    /**
-     * @param $key
-     * @return null
-     */
-    public static function get($key)
-    {
-        return isset(self::$notifications[$key]) ? self::$notifications[$key] : null;
-    }
+	/**
+	 * @param string $key
+	 * @return Notification|null
+	 */
+	public static function getNotification($key) {
+		if (isset(static::$notifications[$key])) {
+			if (!static::$notifications instanceof Notification) {
+				static::$notifications[$key] = self::createNotification(static::$notifications[$key]);
+			}
+			return static::$notifications[$key];
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $key
+	 */
+	public static function removeNotification($key) {
+		if (isset(static::$notifications[$key])) {
+			unset(static::$notifications[$key]);
+		}
+	}
 
     /**
      * @param string $type
-     * @return array|string
+     * @return mixed
      */
-    public static function getAll($type = 'array')
+    public static function getAllNotifications($type = 'array')
     {
-        $n = self::$notifications;
+        foreach (static::$notifications as $key => $notificationConfig) {
+        	static::$notifications[$key] = self::createNotification($notificationConfig);
+		}
+		$n = static::$notifications;
         switch ($type) {
             case 'array' :
                 break;
