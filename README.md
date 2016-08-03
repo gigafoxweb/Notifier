@@ -113,7 +113,7 @@ if (isset($_POST['answ'])) {
 		SessionNotifier::setNotification('my message result 2', ['it`s great', ['class' => 'success']]);
 	} elseif (in_array($answ, ['n', 'no'])) {
 		SessionNotifier::setNotification('my message result' , ['=(', ['class' => 'danger']]);
-		SessionNotifier::setNotification('my message result 2', ['it`s sad', ['class' => 'success']]);
+		SessionNotifier::setNotification('my message result 2', ['it`s sad', ['class' => 'danger']]);
 	} else {
 		SessionNotifier::setNotification('my message result' , ['wrong message', ['class' => 'warning']]);
 	}
