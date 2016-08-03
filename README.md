@@ -40,7 +40,7 @@ This static classes you will use in your app.
 By default package have 2 notifiers MemoryNotifier and SessionNotifier.
 
 You can set notifications to notifier by array || object || callable function || string.
-```
+```php
 MemoryNotifier::setNotification('notification 1 key', new Notification('message'));
 MemoryNotifier::setNotification('notification 2 key', 'message');
 MemoryNotifier::setNotification('notification 3 key', ['you can do anything you want in this notifier', [
@@ -57,7 +57,7 @@ It help you to filtrate notifications when you wanna display/get it from notifie
 NotificationFilters can be created automatically in notifier from callable param || array.
 
 Show all notifications by some search params and filtrate it example:
-```
+```php
 $filters = [
 	function(Notification $notification) {
 		$notification->setMessage($notification->getMessage() . ' php -v : '. phpversion());
@@ -75,7 +75,7 @@ MemoryNotifier::showNotificationsBy(['prefix' => 'my', 'params' => [['show', tru
 
 #Simple application example :
 
-```
+```php
 <?php
 use GigaFoxWeb\Notifier\MemoryNotifier;
 use GigaFoxWeb\Notifier\SessionNotifier;
