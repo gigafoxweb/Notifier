@@ -73,7 +73,50 @@ $filters = [
 MemoryNotifier::showNotificationsBy(['prefix' => 'my', 'params' => [['show', true]]], $filters);
 ```
 
-#Simple application example :
+#Wordpress integration
+```php
+require_once 'vendor/autoload.php';
+
+use GigaFoxWeb\Notifier\MemoryNotifier;
+use GigaFoxWeb\Notifier\Notification;
+
+add_action('init', function() {
+	// register notifications
+	MemoryNotifier::setNotification('gigafoxweb example message', [
+		'hi there!',
+		[
+			'class' => 'notice-success',
+			'show' => true
+		]
+	]);
+});
+
+add_action('admin_notices', function() {
+	MemoryNotifier::showNotificationsBy(
+		[
+			'prefix' => 'gigafoxweb', // show notifications where prefix is gigafoxweb
+			'params' =>	[
+				'show' => true // show notifications where show param is true
+			],
+			'function' => function(Notification $notification) { //show notifications only on my page
+				$myPageScreenId = 'plugins'; // example
+				$screen = get_current_screen();
+				if ($screen instanceof WP_Screen) {
+					return $screen->id === $myPageScreenId;
+				}
+				return false;
+			},
+		],
+		[   //filtrate notifications
+			function(Notification $notification) {
+				$notification->setMessage("<div class='notice {$notification->getParam('class')}'>{$notification->getMessage()}</div>");
+			}
+		]
+	);
+});
+```
+
+#Simple application example
 
 ```php
 <?php

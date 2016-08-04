@@ -105,7 +105,7 @@ class Helper {
 		$params = $notification->getParams();
         foreach ($searchParams as $s) {
             if (is_array($s)) {
-                if (!isset($s[0]) || !isset($s[1])) {
+                if (!array_key_exists(0, $s) || !array_key_exists(1, $s)) {
                     throw new NotifierException('Array search item must contains key and value like: [$key, $value]');
                 }
                 if (!array_key_exists($s[0], $params) || $params[$s[0]] !== $s[1]) {
