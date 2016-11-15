@@ -51,10 +51,10 @@ Notifier::instance()->getHandler('output')->setFiltrator($filtrator);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use GigaFoxWeb\Notifier\Notifier;
-use GigaFoxWeb\Notifier\storages\Memory;
-use GigaFoxWeb\Notifier\storages\Session;
+use GigaFoxWeb\Notifier\notification\storages\Memory;
+use GigaFoxWeb\Notifier\notification\storages\Session;
 use GigaFoxWeb\Notifier\Notification;
-use GigaFoxWeb\Notifier\handlers\OutputHandler;
+use GigaFoxWeb\Notifier\notification\handlers\OutputHandler;
 use GigaFoxWeb\Notifier\notification\Filtrator;
 use GigaFoxWeb\Notifier\notification\filters\RequireParam;
 

@@ -3,13 +3,14 @@
  * @link http://www.gigafoxweb.com/
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
-namespace GigaFoxWeb\Notifier;
+namespace GigaFoxWeb\Notifier\notification;
 
 
+use GigaFoxWeb\Notifier\Notification;
 /**
  * Class Storage
  *
- * @package GigaFoxWeb\Notifier
+ * @package GigaFoxWeb\Notifier\notification
  */
 abstract class Storage {
 

@@ -3,16 +3,16 @@
  * @link http://www.gigafoxweb.com/
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
-namespace GigaFoxWeb\Notifier\storages;
+namespace GigaFoxWeb\Notifier\notification\storages;
 
 
 use GigaFoxWeb\Notifier\Notification;
-use GigaFoxWeb\Notifier\Storage;
+use GigaFoxWeb\Notifier\notification\Storage;
 
 /**
  * Class Session
  *
- * @package GigaFoxWeb\Notifier\storages
+ * @package GigaFoxWeb\Notifier\notification\storages
  */
 class Session extends Storage {
 

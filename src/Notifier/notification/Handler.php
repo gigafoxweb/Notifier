@@ -7,7 +7,6 @@ namespace GigaFoxWeb\Notifier\notification;
 
 
 use GigaFoxWeb\Notifier\Notification;
-use GigaFoxWeb\Notifier\Storage;
 
 /**
  * Class Handler

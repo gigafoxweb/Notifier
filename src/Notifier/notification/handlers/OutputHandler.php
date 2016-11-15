@@ -3,7 +3,7 @@
  * @link http://www.gigafoxweb.com/
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
-namespace GigaFoxWeb\Notifier\handlers;
+namespace GigaFoxWeb\Notifier\notification\handlers;
 
 
 use GigaFoxWeb\Notifier\Notification;
@@ -12,7 +12,7 @@ use GigaFoxWeb\Notifier\notification\Handler;
 /**
  * Class OutputHandler
  *
- * @package GigaFoxWeb\Notifier\handlers
+ * @package GigaFoxWeb\Notifier\notification\handlers
  */
 class OutputHandler extends Handler {
 
