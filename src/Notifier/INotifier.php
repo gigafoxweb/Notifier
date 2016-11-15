@@ -3,48 +3,52 @@
  * @link http://www.gigafoxweb.com/
  * @copyright Copyright (c) http://www.gigafoxweb.com/
  */
-
 namespace GigaFoxWeb\Notifier;
 
 
+use GigaFoxWeb\Notifier\notification\Handler;
+
 /**
  * Interface INotifier
+ *
  * @package GigaFoxWeb\Notifier
  */
 interface INotifier {
 
     /**
-     * @param string $key
-     * @param Notification|array|string|callable $notificationConfig
+     * @param string $id
+     * @param Storage $storage
      */
-    public static function setNotification($key, $notificationConfig);
+    public function setStorage($id, Storage $storage);
 
     /**
-     * @param string $key
-     * @return Notification|null
+     * @param string $id
+     *
+     * @return Storage|null
      */
-    public static function getNotification($key);
-
-	/**
-	 * @param string $key
-	 */
-	public static function removeNotification($key);
-
-	/**
-	 * @param string $key
-	 * @param NotificationFilter[]|Callable[]|array $filters
-	 */
-	public static function showNotification($key, array $filters = []);
+    public function getStorage($id);
 
     /**
-     * @param string $type
-     * @return mixed
+     * @param string $id
+     * @param Handler $handler
      */
-    public static function getAllNotifications($type = 'array');
+    public function setHandler($id, Handler $handler);
 
     /**
-     * @return string
+     * @param string $id
+     *
+     * @return Handler|null
      */
-    public static function getClassName();
+    public function getHandler($id);
+
+    /**
+     * @return Storage[]
+     */
+    public function getStorages();
+
+    /**
+     * @return Handler[]
+     */
+    public function getHandlers();
 
 }

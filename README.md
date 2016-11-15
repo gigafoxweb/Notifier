@@ -9,203 +9,107 @@ The main task of Notifier is to register system notifications in one place and s
 composer require gigafoxweb/notifier
 ```
 
-If you installed package by composer you just need to :
-
-```php
-require_once __DIR__ . '/vendor/autoload.php';
-```
-
-else :
-
-```php
-require_once '/src/Notifier/Notification.php';
-require_once '/src/Notifier/INotifier.php';
-require_once '/src/Notifier/Notifier.php';
-require_once '/src/Notifier/Helper.php';
-require_once '/src/Notifier/SessionNotifier.php';
-require_once '/src/Notifier/MemoryNotifier.php';
-require_once '/src/Notifier/NotificationFilter.php';
-require_once '/src/Notifier/InlineNotificationFilter.php';
-require_once '/src/Notifier/NotifierException.php';
-require_once '/src/Notifier/SessionNotifierException.php';
-```
-
 #Notification
 Notifications are GigaFoxWeb\Notifier\Notification class objects or extending it.
-
+```php
+$notification = new Notification('message', ['status' => 1]);
+```
+#Storage
+Storage is any extending GigaFoxWeb\Notifier\notification\Storage object.
+By default gigafoxweb/notifier have two storages: Memory and Session.
+```php
+$memoryStorage = new Memory();
+$memoryStorage->setNotification($notification);
+```
+#Handler
+Handler is the object what know what to do with filtrated notifications.
+```php
+$outputHandler = new OutputHandler();
+```
 #Notifier
-Notifiers is static classes extends from GigaFoxWeb\Notifier\Notifier and implements INotifier interface.
-It must have 3 required static methods: Notifier::setNotification, Notifier::getNotification, Notifier::removeNotification.
-This static classes you will use in your app.
-By default package have 2 notifiers MemoryNotifier and SessionNotifier.
-
-You can set notifications to notifier by array || object || callable function || string.
+Notifier is just the container for GigaFoxWeb\Notifier\notification\Storage and GigaFoxWeb\Notifier\notification\Handler. 
+It is singleton pool what can be called everywhere.
 ```php
-MemoryNotifier::setNotification('notification 1 key', new Notification('message'));
-MemoryNotifier::setNotification('notification 2 key', 'message');
-MemoryNotifier::setNotification('notification 3 key', ['message', [
-	'show' => true
-]]);
-MemoryNotifier::setNotification('notification 4 key', function() {
-	return new Notification('message');
-});
+Notifier::instance()->setStorage('memory', $memoryStorage);
+Notifier::instance()->setHandler('output', $outputHandler);
 ```
-#NotificationFilter
-NotificationFilters are objects extending GigaFoxWeb\Notifider\NotificationFilter. 
-It help you to filtrate notifications when you wanna display/get it from notifier.
-
-NotificationFilters can be created automatically in notifier from callable param || array.
-
-Show all notifications by some search params and filtrate it example:
+#Filter
+Filter used for removing not needle notifications from handling list.
 ```php
-$filters = [
-	function(Notification $notification) {
-		$notification->setMessage($notification->getMessage() . ' php -v : '. phpversion());
-	},
-	[
-		'function' => function(Notification $notification) {
-			$notification->setMessage("<div class='alert alert-{$notification->getParam('class')}'>{$notification->getMessage()}</div>");
-		},
-		'search' => ['params' => ['class']]
-	],
-];
-
-MemoryNotifier::showNotificationsBy(['prefix' => 'my', 'params' => [['show', true]]], $filters);
+$filter = new RequireParam(['some-required-param', 'another-required-param']);
 ```
-
-#Wordpress integration
+#Filtrator is the pool of Filter objects, used in Handler.
 ```php
-require_once 'vendor/autoload.php';
-
-use GigaFoxWeb\Notifier\MemoryNotifier;
-use GigaFoxWeb\Notifier\Notification;
-
-add_action('init', function() {
-	// register notifications
-	MemoryNotifier::setNotification('gigafoxweb example message', [
-		'hi there!',
-		[
-			'class' => 'notice-success',
-			'show' => true
-		]
-	]);
-});
-
-add_action('admin_notices', function() {
-	MemoryNotifier::showNotificationsBy(
-		[
-			'prefix' => 'gigafoxweb', // show notifications where prefix is gigafoxweb
-			'params' =>	[
-				'show' => true // show notifications where show param is true
-			],
-			'function' => function(Notification $notification) { //show notifications only on my page
-				$myPageScreenId = 'plugins'; // example
-				$screen = get_current_screen();
-				if ($screen instanceof WP_Screen) {
-					return $screen->id === $myPageScreenId;
-				}
-				return false;
-			},
-		],
-		[   //filtrate notifications
-			function(Notification $notification) {
-				$notification->setMessage("<div class='notice {$notification->getParam('class')}'>{$notification->getMessage()}</div>");
-			}
-		]
-	);
-});
+$filtrator = new Filtrator();
+$filtrator->addFilter($filter);
+Notifier::instance()->getHandler('output')->setFiltrator($filtrator);
 ```
-
 #Simple application example
 
 ```php
-<?php
-use GigaFoxWeb\Notifier\MemoryNotifier;
-use GigaFoxWeb\Notifier\SessionNotifier;
-use GigaFoxWeb\Notifier\Notification;
+require_once __DIR__ . '/vendor/autoload.php';
 
-require_once '/src/Notifier/Notification.php';
-require_once '/src/Notifier/INotifier.php';
-require_once '/src/Notifier/Notifier.php';
-require_once '/src/Notifier/Helper.php';
-require_once '/src/Notifier/SessionNotifier.php';
-require_once '/src/Notifier/MemoryNotifier.php';
-require_once '/src/Notifier/NotificationFilter.php';
-require_once '/src/Notifier/InlineNotificationFilter.php';
-require_once '/src/Notifier/NotifierException.php';
-require_once '/src/Notifier/SessionNotifierException.php';
+use GigaFoxWeb\Notifier\Notifier;
+use GigaFoxWeb\Notifier\storages\Memory;
+use GigaFoxWeb\Notifier\storages\Session;
+use GigaFoxWeb\Notifier\Notification;
+use GigaFoxWeb\Notifier\handlers\OutputHandler;
+use GigaFoxWeb\Notifier\notification\Filtrator;
+use GigaFoxWeb\Notifier\notification\filters\RequireParam;
 
 session_start();
 
-MemoryNotifier::setNotification('my message', ['You can do anything you want in this notifier', [
-	'show' => true,
-	'class' => 'info'
-]]);
-MemoryNotifier::setNotification('my message what will not print', ['This message show param is false', [
-	'show' => false
-]]);
+//setting notification storages
+Notifier::instance()->setStorage('memory', new Memory());
+Notifier::instance()->setStorage('session', new Session('GFW_notifications'));
 
-MemoryNotifier::setNotification('not my message', ['it is not my message', [
-	'show' => true
-]]);
+//add notification into memory storage
+Notifier::instance()->getStorage('memory')->setNotification(
+    'hello',
+    new Notification('Hello man!', ['required-param' => 'some-required-value',])
+);
 
-if (isset($_POST['answ'])) {
-	$answ = trim(htmlspecialchars($_POST['answ']));
-	if (in_array($answ, ['y', 'yes'])) {
-		SessionNotifier::setNotification('my message result', ['=)', ['class' => 'success']]);
-		SessionNotifier::setNotification('my message result 2', ['it`s great', ['class' => 'success']]);
-	} elseif (in_array($answ, ['n', 'no'])) {
-		SessionNotifier::setNotification('my message result' , ['=(', ['class' => 'danger']]);
-		SessionNotifier::setNotification('my message result 2', ['it`s sad', ['class' => 'danger']]);
-	} else {
-		SessionNotifier::setNotification('my message result' , ['wrong message', ['class' => 'warning']]);
-	}
+if (isset($_POST['some-input'])) {
+    $message = ($_POST['some-input'] === 'valid') ? 'Value is valid' : 'Value is not valid';
+    //add notification into session storage
+    Notifier::instance()->getStorage('session')->setNotification(
+        'some-input-validation',
+        new Notification($message, ['required-param' => 'some-required-value'])
+    );
 }
 
-$filters = [
-	function(Notification $notification) {
-		$notification->setMessage($notification->getMessage() . ' php -v : '. phpversion());
-	},
-	[
-		'function' => function(Notification $notification) {
-			$notification->setMessage("<div class='alert alert-{$notification->getParam('class')}'>{$notification->getMessage()}</div>");
-		},
-		'search' => ['params' => ['class']]
-	],
-];
+//create filtrator if we want to use only filtrated notifications
+$filtrator = (new Filtrator());
+$filtrator->addFilter(new RequireParam(['required-param']));
 
+//create notifications handler
+$outputHandler = new OutputHandler(__DIR__ . '/notification-layout.php');
+
+//setting notification filtrator to handler
+$outputHandler->setFiltrator($filtrator);
+
+//setting handler
+Notifier::instance()->setHandler('output', $outputHandler);
 ?>
-
 <!doctype html>
 <html lang="en">
 <head>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<meta charset="UTF-8">
-	<title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
 </head>
 <body>
-<div class="container-fluid" style="padding-top:20px">
-	<div class="row">
-		<div class="col-xs-12">
-			<section>
-				<div class="notifications">
-					<?php
-					MemoryNotifier::showNotificationsBy(['prefix' => 'my', 'params' => [['show', true]]], $filters);
-					SessionNotifier::showNotificationsBy(['prefix' => 'my'], $filters);
-					?>
-				</div>
-				<div class="send">
-					<p class="">Is this notifier simple? y/n</p>
-					<form class="form-inline" method="post" name="example" action="">
-						<label class="" for="answ">answer: </label>
-						<input class="form-control" id="answ" type="text" name="answ" value="" />
-						<input class="btn btn-default" type="submit"/>
-					</form>
-				</div>
-			</section>
-		</div>
-	</div>
-</div>
+    <!-- notifications output start -->
+    <?= Notifier::instance()->getHandler('output')->processStorage(Notifier::instance()->getStorage('memory')); ?>
+    <?= Notifier::instance()->getHandler('output')->processStorage(Notifier::instance()->getStorage('session')); ?>
+    <!-- notifications output end -->
+    <form action="" method="post">
+        <label for="some-input">Some input</label>
+        <input type="text" id="some-input" name="some-input">
+        <input type="submit">
+    </form>
 </body>
 </html>
 ```
