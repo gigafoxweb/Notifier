@@ -38,7 +38,8 @@ Filter used for removing not needle notifications from handling list.
 ```php
 $filter = new RequireParam(['some-required-param', 'another-required-param']);
 ```
-#Filtrator is the pool of Filter objects, used in Handler.
+#Filtrator 
+Filtrator is the pool of Filter objects, used in Handler.
 ```php
 $filtrator = new Filtrator();
 $filtrator->addFilter($filter);
