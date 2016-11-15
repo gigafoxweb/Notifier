@@ -2,7 +2,7 @@
     "name": "gigafoxweb/notifier",
     "description": "Simple notifier manager",
     "keywords": ["notifications", "notify", "notice", "notification"],
-    "version": "3.0.0",
+    "version": "3.0.1",
     "license": "MIT",
     "authors": [
       {
