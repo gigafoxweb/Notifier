@@ -37,6 +37,21 @@ class Notifier implements INotifier {
     protected function __construct() {}
 
     /**
+     *
+     */
+    protected function __sleep() {}
+
+    /**
+     *
+     */
+    protected function __wakeup() {}
+
+    /**
+     *
+     */
+    protected function __clone() {}
+
+    /**
      * @return static
      */
     public static function instance() {
